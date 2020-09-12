@@ -780,7 +780,7 @@ func searchEstates(c echo.Context) error {
 				c.Echo().Logger.Infof("doorHeightRangeID invalid, %v : %v", c.QueryParam("doorHeightRangeId"), err)
 				return c.NoContent(http.StatusBadRequest)
 			}
-			if doorHeight.Min == -1 {
+			if doorHeight.Min != -1 {
 				conditions = append(conditions, "door_height >= ?")
 				if est.DoorHeight < doorHeight.Min {
 					continue
