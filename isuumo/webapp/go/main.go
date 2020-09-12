@@ -363,7 +363,7 @@ func postChair(c echo.Context) error {
 	}
 	defer tx.Rollback()
 
-	queryInsert := `INSERT INTO chair(id, name, description, thumbnail, price, height, width, depth, color, features, kind, popularity, stock) VALUES `
+	queryInsert := `INSERT INTO chair (id, name, description, thumbnail, price, height, width, depth, color, features, kind, popularity, stock) VALUES `
 	insertparams := []interface{}{}
 
 	for _, row := range records {
@@ -389,13 +389,14 @@ func postChair(c echo.Context) error {
 			c.Logger().Errorf("failed to read record: %v", err)
 			return c.NoContent(http.StatusBadRequest)
 		}
-
-		_, err := tx.Exec(queryInsert, insertparams...)
-		if err != nil {
-			c.Logger().Errorf("failed to insert chair: %v", err)
-			return c.NoContent(http.StatusInternalServerError)
-		}
 	}
+
+	_, err = tx.Exec(queryInsert, insertparams...)
+	if err != nil {
+		c.Logger().Errorf("failed to insert chair: %v", err)
+		return c.NoContent(http.StatusInternalServerError)
+	}
+
 	if err := tx.Commit(); err != nil {
 		c.Logger().Errorf("failed to commit tx: %v", err)
 		return c.NoContent(http.StatusInternalServerError)
