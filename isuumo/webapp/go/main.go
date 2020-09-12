@@ -250,6 +250,7 @@ func main() {
 
 	// Initialize
 	e.POST("/initialize", initialize)
+	e.POST("/other_initialize", other_initialize)
 
 	// Chair Handler
 	e.GET("/api/chair/:id", getChairDetail)
@@ -292,6 +293,33 @@ func initialize(c echo.Context) error {
 		filepath.Join(sqlDir, "2_DummyChairData.sql"),
 	}
 
+	client1 := &http.Client{}
+	req, err := http.NewRequest("POST", "http://10.160.10.101/other_initialize", nil)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	resp1, err := client1.Do(req)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	defer resp1.Body.Close()
+
+	client2 := &http.Client{}
+	req, err = http.NewRequest("POST", "http://10.160.10.102/other_initialize", nil)
+	if err != nil {
+		return err
+	}
+
+	resp2, err := client2.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp2.Body.Close()
+
 	for _, p := range paths {
 		sqlFile, _ := filepath.Abs(p)
 		cmdStr := fmt.Sprintf("mysql -h %v -u %v -p%v -P %v %v < %v",
@@ -308,37 +336,28 @@ func initialize(c echo.Context) error {
 		}
 	}
 
-	client1 := &http.Client{}
-	req, err := http.NewRequest("POST", "http://10.160.10.101/initialize", nil)
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-
-	resp1, err := client1.Do(req)
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-
-	defer resp1.Body.Close()
-
-	client2 := &http.Client{}
-	req, err = http.NewRequest("POST", "http://10.160.10.102/initialize", nil)
-	if err != nil {
-		return err
-	}
-
-	resp2, err := client2.Do(req)
-	if err != nil {
-		return err
-	}
-
-	defer resp2.Body.Close()
-
 	return c.JSON(http.StatusOK, InitializeResponse{
 		Language: "go",
 	})
+}
+
+func other_initialize(c echo.Context) error {
+	client := &http.Client{}
+	req, err := http.NewRequest("POST", "http://localhost/initialize", nil)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	defer resp.Body.Close()
+
+	return nil
 }
 
 func getChairDetail(c echo.Context) error {
