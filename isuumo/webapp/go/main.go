@@ -366,7 +366,7 @@ func postChair(c echo.Context) error {
 	queryInsert := `INSERT INTO chair (id, name, description, thumbnail, price, height, width, depth, color, features, kind, popularity, stock) VALUES `
 	insertparams := []interface{}{}
 
-	for _, row := range records {
+	for i, row := range records {
 		rm := RecordMapper{Record: row}
 		id := rm.NextInt()
 		name := rm.NextString()
@@ -382,7 +382,11 @@ func postChair(c echo.Context) error {
 		popularity := rm.NextInt()
 		stock := rm.NextInt()
 
-		queryInsert += fmt.Sprintf("(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?),")
+		if i == 0 {
+			queryInsert += fmt.Sprintf("(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+		} else {
+			queryInsert += fmt.Sprintf(",(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+		}
 		insertparams = append(insertparams, id, name, description, thumbnail, price, height, width, depth, color, features, kind, popularity, stock)
 
 		if err := rm.Err(); err != nil {
