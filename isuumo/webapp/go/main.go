@@ -311,11 +311,13 @@ func initialize(c echo.Context) error {
 	client1 := &http.Client{}
 	req, err := http.NewRequest("POST", "http://10.160.10.101/initialize", nil)
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 
 	resp1, err := client1.Do(req)
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 
