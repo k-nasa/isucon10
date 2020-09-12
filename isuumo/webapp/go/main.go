@@ -949,7 +949,7 @@ func searchEstates(c echo.Context) error {
 	// 	return c.NoContent(http.StatusInternalServerError)
 	// }
 
-	res.Count = int64(len(estateList))
+	res.Count = int64(len(result))
 
 	// estates := []Estate{}
 	// params = append(params, perPage, page*perPage)
@@ -962,7 +962,7 @@ func searchEstates(c echo.Context) error {
 	// 	return c.NoContent(http.StatusInternalServerError)
 	// }
 
-	res.Estates = estateList[page*perPage : perPage]
+	res.Estates = result[page*perPage : perPage]
 
 	return c.JSON(http.StatusOK, res)
 }
