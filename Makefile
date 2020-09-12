@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := help
 
-APP_DIR := todo
+APP_DIR := /home/isucon/isuumo/webapp/go
 
 NGINX_LOG := /var/log/nginx/access.log
 MYSQL_SLOW_LOG := /var/log/mysql/slow.log
@@ -10,9 +10,9 @@ NGINX_CONFIG := /etc/nginx/nginx.conf
 
 DB_HOST := 127.0.0.1
 DB_PORT := 3306
-DB_USER := todo
-DB_PASS := todo
-DB_NAME := todo
+DB_USER := isucon
+DB_PASS := isucon
+DB_NAME := isuumo
 
 EDIT_MYSQL_CONFIG := $(APP_DIR)/my.cnf
 EDIT_NGINX_CONFIG := $(APP_DIR)/nginx.conf
@@ -30,7 +30,7 @@ log_reset: ## logファイルを初期化する
 
 .PHONY: alp
 alp: ## alpのログを見る
-	@sudo cat $(NGINX_LOG) | alp ltsv --sort avg -r --format md -m "" --filters ""
+	@sudo cat $(NGINX_LOG) | alp ltsv --sort avg -r --format md -m "/api/chair/\d+, /api/estate/\d+, /api/estate/req_doc/\d+, /api/chair/buy/\d+, /api/recommended_estate/\d+" --filters ""
 
 .PHONY: slow
 slow: ## スロークエリを見る
@@ -62,11 +62,11 @@ pprof:
 
 .PHONY: application_build
 application_build: ## application build (wip)
-	@echo "Please implement!!"
+	cd $(APP_DIR); make
 
 .PHONY: application_restart
 application_restart: ## application restart (wip)
-	@echo "Please implement!!"
+	sudo systemctl restart isuumo.go.service
 
 .PHONY: middleware_restart
 middleware_restart: ## mysqlとnginxのrestart
@@ -77,4 +77,4 @@ middleware_restart: ## mysqlとnginxのrestart
 restart: application_restart middleware_restart ## application, mysql, nginxのリスタート
 
 .PHONY: bench
-bench: slow_on log_reset application_build restart ## bench回す前に実行するコマンド(これで全ての前処理が完了する状態を作る)
+bench: log_reset application_build restart slow_on ## bench回す前に実行するコマンド(これで全ての前処理が完了する状態を作る)
