@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"reflect"
 	"strconv"
 	"strings"
 
@@ -921,8 +922,9 @@ func searchEstateNazotte(c echo.Context) error {
 	re.Count = int64(len(re.Estates))
 
 	c.Echo().Logger.Infof("=================")
-	c.Echo().Logger.Infof("estatesInPolygon: %v", estatesInPolygon)
-	c.Echo().Logger.Infof("e: %v", e)
+	c.Echo().Logger.Infof("estatesInPolygon: %v", len(estatesInPolygon))
+	c.Echo().Logger.Infof("e: %v", len(e))
+	c.Echo().Logger.Infof("equal?: %v", reflect.DeepEqual(e, estatesInPolygon))
 	c.Echo().Logger.Infof("=================")
 
 	return c.JSON(http.StatusOK, re)
