@@ -200,7 +200,7 @@ func (r *RecordMapper) Err() error {
 
 func NewMySQLConnectionEnv() *MySQLConnectionEnv {
 	return &MySQLConnectionEnv{
-		Host:     getEnv("MYSQL_HOST", "127.0.0.1"),
+		Host:     getEnv("MYSQL_HOST", "10.160.10.101"),
 		Port:     getEnv("MYSQL_PORT", "3306"),
 		User:     getEnv("MYSQL_USER", "isucon"),
 		DBName:   getEnv("MYSQL_DBNAME", "isuumo"),
@@ -250,6 +250,7 @@ func main() {
 
 	// Initialize
 	e.POST("/initialize", initialize)
+	e.POST("/other_initialize", other_initialize)
 
 	// Chair Handler
 	e.GET("/api/chair/:id", getChairDetail)
@@ -308,9 +309,51 @@ func initialize(c echo.Context) error {
 		}
 	}
 
+	client1 := &http.Client{}
+	req, err := http.NewRequest("POST", "http://10.160.10.101/other_initialize", nil)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	resp1, err := client1.Do(req)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	defer resp1.Body.Close()
+
 	return c.JSON(http.StatusOK, InitializeResponse{
 		Language: "go",
 	})
+}
+
+func other_initialize(c echo.Context) error {
+	sqlDir := filepath.Join("..", "mysql", "db")
+	paths := []string{
+		filepath.Join(sqlDir, "0_Schema.sql"),
+		filepath.Join(sqlDir, "1_DummyEstateData.sql"),
+		filepath.Join(sqlDir, "2_DummyChairData.sql"),
+	}
+
+	for _, p := range paths {
+		sqlFile, _ := filepath.Abs(p)
+		cmdStr := fmt.Sprintf("mysql -h %v -u %v -p%v -P %v %v < %v",
+			mySQLConnectionData.Host,
+			mySQLConnectionData.User,
+			mySQLConnectionData.Password,
+			mySQLConnectionData.Port,
+			mySQLConnectionData.DBName,
+			sqlFile,
+		)
+		if err := exec.Command("bash", "-c", cmdStr).Run(); err != nil {
+			c.Logger().Errorf("Initialize script error : %v", err)
+			return c.NoContent(http.StatusInternalServerError)
+		}
+	}
+
+	return nil
 }
 
 func getChairDetail(c echo.Context) error {
