@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := help
 
-APP_DIR := todo
+APP_DIR := /home/isucon/isuumo/webapp/go
 
 NGINX_LOG := /var/log/nginx/access.log
 MYSQL_SLOW_LOG := /var/log/mysql/slow.log
@@ -10,9 +10,9 @@ NGINX_CONFIG := /etc/nginx/nginx.conf
 
 DB_HOST := 127.0.0.1
 DB_PORT := 3306
-DB_USER := todo
-DB_PASS := todo
-DB_NAME := todo
+DB_USER := isucon
+DB_PASS := isucon
+DB_NAME := isuumo
 
 EDIT_MYSQL_CONFIG := $(APP_DIR)/my.cnf
 EDIT_NGINX_CONFIG := $(APP_DIR)/nginx.conf
@@ -62,11 +62,11 @@ pprof:
 
 .PHONY: application_build
 application_build: ## application build (wip)
-	@echo "Please implement!!"
+	cd $(APP_DIR); make
 
 .PHONY: application_restart
 application_restart: ## application restart (wip)
-	@echo "Please implement!!"
+	sudo systemctl restart isuumo.go.service
 
 .PHONY: middleware_restart
 middleware_restart: ## mysqlとnginxのrestart
