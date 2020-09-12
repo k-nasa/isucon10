@@ -868,9 +868,21 @@ func searchEstateNazotte(c echo.Context) error {
 		return c.NoContent(http.StatusBadRequest)
 	}
 
+	coodinatesText := coordinates.coordinatesToText()
+
 	b := coordinates.getBoundingBox()
 	estatesInBoundingBox := []Estate{}
+
+	e := []Estate{}
+
 	query := `SELECT * FROM estate WHERE latitude <= ? AND latitude >= ? AND longitude <= ? AND longitude >= ? ORDER BY popularity DESC, id ASC`
+
+	query2 := fmt.Sprintf(`SELECT * FROM estate as e WHERE latitude <= ? AND latitude >= ? AND longitude <= ? AND longitude >= ? AND ST_Contains(ST_PolygonFromText(%s), ST_GeomFromText(POINT(e.latitude, e.longitude))) ORDER BY popularity DESC, id ASC`, coodinatesText)
+
+	err1 := db.Select(&e, query2, b.BottomRightCorner.Latitude, b.TopLeftCorner.Latitude, b.BottomRightCorner.Longitude, b.TopLeftCorner.Longitude)
+
+	c.Echo().Logger.Infof("new query error: %v, query: %s", err1, query2)
+
 	err = db.Select(&estatesInBoundingBox, query, b.BottomRightCorner.Latitude, b.TopLeftCorner.Latitude, b.BottomRightCorner.Longitude, b.TopLeftCorner.Longitude)
 	if err == sql.ErrNoRows {
 		c.Echo().Logger.Infof("select * from estate where latitude ...", err)
@@ -907,6 +919,11 @@ func searchEstateNazotte(c echo.Context) error {
 		re.Estates = estatesInPolygon
 	}
 	re.Count = int64(len(re.Estates))
+
+	c.Echo().Logger.Infof("=================")
+	c.Echo().Logger.Infof("estatesInPolygon: %v", estatesInPolygon)
+	c.Echo().Logger.Infof("e: %v", e)
+	c.Echo().Logger.Infof("=================")
 
 	return c.JSON(http.StatusOK, re)
 }
