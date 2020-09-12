@@ -308,6 +308,32 @@ func initialize(c echo.Context) error {
 		}
 	}
 
+	client1 := &http.Client{}
+	req, err := http.NewRequest("POST", "10.160.10.101/initialize", nil)
+	if err != nil {
+		return err
+	}
+
+	resp1, err := client1.Do(req)
+	if err != nil {
+		return err
+	}
+
+	defer resp1.Body.Close()
+
+	client2 := &http.Client{}
+	req, err = http.NewRequest("POST", "10.160.10.102/initialize", nil)
+	if err != nil {
+		return err
+	}
+
+	resp2, err := client2.Do(req)
+	if err != nil {
+		return err
+	}
+
+	defer resp2.Body.Close()
+
 	return c.JSON(http.StatusOK, InitializeResponse{
 		Language: "go",
 	})
