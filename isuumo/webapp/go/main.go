@@ -717,6 +717,7 @@ func postEstate(c echo.Context) error {
 	queryInsert := `INSERT INTO estate(id, name, description, thumbnail, address, latitude, longitude, rent, door_height, door_width, features, popularity) VALUES `
 	insertparams := []interface{}{}
 
+	esMux.Lock()
 	for i, row := range records {
 		rm := RecordMapper{Record: row}
 		id := rm.NextInt()
@@ -736,7 +737,6 @@ func postEstate(c echo.Context) error {
 			return c.NoContent(http.StatusBadRequest)
 		}
 
-		esMux.Lock()
 		estateList = append(estateList,
 			Estate{ID: estateList[len(estateList)-1].ID + 1,
 				Thumbnail:   thumbnail,
@@ -752,7 +752,6 @@ func postEstate(c echo.Context) error {
 				Popularity:  int64(popularity),
 			},
 		)
-		esMux.Unlock()
 
 		if i == 0 {
 			queryInsert += fmt.Sprintf("(?,?,?,?,?,?,?,?,?,?,?,?)")
@@ -762,6 +761,7 @@ func postEstate(c echo.Context) error {
 
 		insertparams = append(insertparams, id, name, description, thumbnail, address, latitude, longitude, rent, doorHeight, doorWidth, features, popularity)
 	}
+	esMux.Unlock()
 
 	_, err = db.Exec(queryInsert, insertparams...)
 	if err != nil {
