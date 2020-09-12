@@ -28,6 +28,11 @@ var mySQLConnectionData *MySQLConnectionEnv
 var chairSearchCondition ChairSearchCondition
 var estateSearchCondition EstateSearchCondition
 
+// cache attributes
+var (
+	estateList []Estate
+)
+
 type InitializeResponse struct {
 	Language string `json:"language"`
 }
@@ -307,6 +312,11 @@ func initialize(c echo.Context) error {
 			c.Logger().Errorf("Initialize script error : %v", err)
 			return c.NoContent(http.StatusInternalServerError)
 		}
+	}
+
+	err := db.Select(&estateList, "SELECT * FROM estate")
+	if err != nil {
+		return err
 	}
 
 	client1 := &http.Client{}
