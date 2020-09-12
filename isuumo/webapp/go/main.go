@@ -309,7 +309,7 @@ func initialize(c echo.Context) error {
 	}
 
 	client1 := &http.Client{}
-	req, err := http.NewRequest("POST", "10.160.10.101/initialize", nil)
+	req, err := http.NewRequest("POST", "http://10.160.10.101/initialize", nil)
 	if err != nil {
 		return err
 	}
@@ -322,7 +322,7 @@ func initialize(c echo.Context) error {
 	defer resp1.Body.Close()
 
 	client2 := &http.Client{}
-	req, err = http.NewRequest("POST", "10.160.10.102/initialize", nil)
+	req, err = http.NewRequest("POST", "http://10.160.10.102/initialize", nil)
 	if err != nil {
 		return err
 	}
