@@ -324,6 +324,16 @@ func initialize(c echo.Context) error {
 
 	defer resp1.Body.Close()
 
+	_, err = db.Exec("SELECT * from chair")
+	if err != nil {
+		c.Logger().Errorf("failed to select chair")
+	}
+
+	_, err = db.Exec("SELECT * from estate")
+	if err != nil {
+		c.Logger().Errorf("failed to select estate")
+	}
+
 	return c.JSON(http.StatusOK, InitializeResponse{
 		Language: "go",
 	})
