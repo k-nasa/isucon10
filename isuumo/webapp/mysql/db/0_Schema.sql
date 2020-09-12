@@ -19,7 +19,9 @@ CREATE TABLE isuumo.estate
   features    VARCHAR(64)         NOT NULL,
   popularity  INTEGER             NOT NULL,
   index (door_width, door_height),
-  index (latitude, longitude)
+  index (latitude, longitude),
+  index (rent),
+  index (id, popularity),
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE isuumo.chair
@@ -38,5 +40,6 @@ CREATE TABLE isuumo.chair
   popularity  INTEGER         NOT NULL,
   stock       INTEGER         NOT NULL,
   index (price),
-  index (stock)
+  index (stock),
+  index (id, popularity),
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
