@@ -734,6 +734,22 @@ func postEstate(c echo.Context) error {
 			return c.NoContent(http.StatusBadRequest)
 		}
 
+		estateList = append(estateList,
+			Estate{ID: estateList[len(estateList)-1].ID + 1,
+				Thumbnail:   thumbnail,
+				Name:        name,
+				Description: description,
+				Latitude:    latitude,
+				Longitude:   longitude,
+				Address:     address,
+				Rent:        int64(rent),
+				DoorHeight:  int64(doorHeight),
+				DoorWidth:   int64(doorWidth),
+				Features:    features,
+				Popularity:  int64(popularity),
+			},
+		)
+
 		if i == 0 {
 			queryInsert += fmt.Sprintf("(?,?,?,?,?,?,?,?,?,?,?,?)")
 		} else {
