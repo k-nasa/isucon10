@@ -13,6 +13,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
@@ -32,6 +33,7 @@ var estateSearchCondition EstateSearchCondition
 // cache attributes
 var (
 	estateList []Estate
+	esMux      = sync.RWMutex{}
 )
 
 type InitializeResponse struct {
@@ -734,6 +736,7 @@ func postEstate(c echo.Context) error {
 			return c.NoContent(http.StatusBadRequest)
 		}
 
+		esMux.Lock()
 		estateList = append(estateList,
 			Estate{ID: estateList[len(estateList)-1].ID + 1,
 				Thumbnail:   thumbnail,
@@ -749,6 +752,7 @@ func postEstate(c echo.Context) error {
 				Popularity:  int64(popularity),
 			},
 		)
+		esMux.Unlock()
 
 		if i == 0 {
 			queryInsert += fmt.Sprintf("(?,?,?,?,?,?,?,?,?,?,?,?)")
@@ -772,6 +776,9 @@ func searchEstates(c echo.Context) error {
 	conditions := make([]string, 0)
 	// params := make([]interface{}, 0)
 	var result []Estate
+
+	esMux.RLock()
+	defer esMux.RUnlock()
 
 	for _, est := range estateList {
 		if c.QueryParam("doorHeightRangeId") != "" {
@@ -962,7 +969,7 @@ func searchEstates(c echo.Context) error {
 	// 	return c.NoContent(http.StatusInternalServerError)
 	// }
 
-	res.Estates = result[page*perPage : perPage]
+	res.Estates = result[page*perPage : page*perPage+perPage]
 
 	return c.JSON(http.StatusOK, res)
 }
