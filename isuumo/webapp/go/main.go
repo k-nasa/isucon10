@@ -363,7 +363,7 @@ func postChair(c echo.Context) error {
 	}
 	defer tx.Rollback()
 
-	queryInsert := `INSERT INTO chair(id, name, description, thumbnail, price, height, width, depth, color, features, kind, popularity, stock) VALUES`
+	queryInsert := `INSERT INTO chair(id, name, description, thumbnail, price, height, width, depth, color, features, kind, popularity, stock) VALUES `
 	insertparams := []interface{}{}
 
 	for _, row := range records {
@@ -382,6 +382,7 @@ func postChair(c echo.Context) error {
 		popularity := rm.NextInt()
 		stock := rm.NextInt()
 
+		queryInsert += fmt.Sprintf("(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?),")
 		insertparams = append(insertparams, id, name, description, thumbnail, price, height, width, depth, color, features, kind, popularity, stock)
 
 		if err := rm.Err(); err != nil {
