@@ -356,13 +356,6 @@ func postChair(c echo.Context) error {
 		return c.NoContent(http.StatusInternalServerError)
 	}
 
-	tx, err := db.Begin()
-	if err != nil {
-		c.Logger().Errorf("failed to begin tx: %v", err)
-		return c.NoContent(http.StatusInternalServerError)
-	}
-	defer tx.Rollback()
-
 	queryInsert := `INSERT INTO chair (id, name, description, thumbnail, price, height, width, depth, color, features, kind, popularity, stock) VALUES `
 	insertparams := []interface{}{}
 
@@ -395,16 +388,12 @@ func postChair(c echo.Context) error {
 		}
 	}
 
-	_, err = tx.Exec(queryInsert, insertparams...)
+	_, err = db.Exec(queryInsert, insertparams...)
 	if err != nil {
 		c.Logger().Errorf("failed to insert chair: %v", err)
 		return c.NoContent(http.StatusInternalServerError)
 	}
 
-	if err := tx.Commit(); err != nil {
-		c.Logger().Errorf("failed to commit tx: %v", err)
-		return c.NoContent(http.StatusInternalServerError)
-	}
 	return c.NoContent(http.StatusCreated)
 }
 
