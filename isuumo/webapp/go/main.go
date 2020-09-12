@@ -316,7 +316,7 @@ func initialize(c echo.Context) error {
 
 	err := db.Select(&estateList, "SELECT * FROM estate")
 	if err != nil {
-		println(estateList)
+		log.Print(estateList)
 		return err
 	}
 
